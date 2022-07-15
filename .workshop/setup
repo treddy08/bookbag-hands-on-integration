@@ -6,3 +6,6 @@
 # this script, or are deploying applications, your scripts must cope with
 # the steps having already been run. This is because this script will be
 # run a second time if the container were restarted for some reason.
+
+curl -L https://github.com/apache/camel-k/releases/download/v1.9.2/camel-k-client-1.9.2-linux-64bit.tar.gz | tar xzvf -
+mv kamel /usr/local/bin
