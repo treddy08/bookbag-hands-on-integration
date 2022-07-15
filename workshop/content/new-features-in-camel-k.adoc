@@ -44,7 +44,7 @@ Content in a passthrough block is passed to the output unprocessed.
 That means you can include raw HTML, like this embedded Gist:
 </p>
 
-<a onclick="jsfunction()" href="javascript:send_to_terminal('oc get pods', 1);">
+<a href="#" onclick="send_to_terminal('oc get pods', 1); return false;">Run Code</a>
 ++++
 
 == Camel K Serverless integration with Knative in an event-driven architecture
