@@ -1,8 +1,9 @@
 ---
-name: Bookbag Template
+name: Hands on with Integration
 modules:
   activate:
     - overview
+    - new-features-in-camel-k
     - prepare-environment
     - exercises
     - cleanup

@@ -2,6 +2,9 @@
 modules:
   overview:
     name: Workshop Overview
+    exit_sign: New Features in Camel K
+  new-features-in-camel-k:
+    name: New Features in Camel K
     exit_sign: Prepare Environment
   prepare-environment:
     name: Prepare Environment
