@@ -66,6 +66,7 @@ All Camel K integrations described above (except the market-source which needs t
 ----
 $ oc new-project lab-04-knative
 ----
++
 ++++
 <a href="#" onclick="parent.send_to_terminal('oc new-project lab-04-knative', 1); return false;">Execute</a>
 ++++
@@ -96,8 +97,9 @@ spec:
   sourceNamespace: openshift-marketplace
 EOF
 ----
++
 ++++
-<a href="#" onclick="var file = '\r\napiVersion: operators.coreos.com/v1\r\nkind: OperatorGroup\r\nmetadata:\r\n  name: lab-04-knative-og\r\n  namespace: lab-04-knative\r\nspec:\r\n  targetNamespaces:\r\n  - lab-04-knative\r\n---\r\napiVersion: operators.coreos.com/v1alpha1\r\nkind: Subscription\r\nmetadata:\r\n  name: red-hat-camel-k\r\n  namespace: lab-04-knative\r\nspec:\r\n  channel: stable\r\n  name: red-hat-camel-k\r\n  source: redhat-operators\r\n  sourceNamespace: openshift-marketplace\r\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
+<a href="#" onclick="var yaml = '\r\napiVersion: operators.coreos.com/v1\r\nkind: OperatorGroup\r\nmetadata:\r\n  name: lab-04-knative-og\r\n  namespace: lab-04-knative\r\nspec:\r\n  targetNamespaces:\r\n  - lab-04-knative\r\n---\r\napiVersion: operators.coreos.com/v1alpha1\r\nkind: Subscription\r\nmetadata:\r\n  name: red-hat-camel-k\r\n  namespace: lab-04-knative\r\nspec:\r\n  channel: stable\r\n  name: red-hat-camel-k\r\n  source: redhat-operators\r\n  sourceNamespace: openshift-marketplace\r\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
 ++++
 
 . Confirm if the operator installed successfull by running `oc get csv` and find an entry related to `red-hat-camel-k-operator` in phase *Succeeded*:
