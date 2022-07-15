@@ -2,9 +2,6 @@ FROM quay.io/openshifthomeroom/workshop-dashboard:5.0.0
 
 USER root
 
-RUN curl -L https://github.com/apache/camel-k/releases/download/v1.9.2/camel-k-client-1.9.2-linux-64bit.tar.gz | tar xzvf -
-RUN mv kamel /usr/local/bin
-
 COPY . /tmp/src
 
 RUN rm -rf /tmp/src/.git* && \
