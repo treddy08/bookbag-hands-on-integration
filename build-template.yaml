@@ -18,7 +18,7 @@ parameters:
     required: true
     value: image-registry.openshift-image-registry.svc:5000/bookbag-tr1/workshop-dashboard
   - name: GIT_REPO
-    value: https://github.com/redhat-gpte-devopsautomation/bookbag-template.git
+    value: https://github.com/treddy08/bookbag-hands-on-integration.git
 
 objects:
   - apiVersion: image.openshift.io/v1
