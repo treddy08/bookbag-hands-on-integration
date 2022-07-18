@@ -1,4 +1,4 @@
-FROM quay.io/openshifthomeroom/workshop-dashboard:latest
+FROM image-registry.openshift-image-registry.svc:5000/bookbag-tr1/workshop-dashboard
 
 USER root
 
