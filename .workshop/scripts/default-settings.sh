@@ -14,7 +14,7 @@ SPAWNER_VARIANT=production
 SPAWNER_ROLE=admin
 SPAWNER_PASSWORD=
 
-DASHBOARD_REPO=openshift-homeroom/workshop-dashboard
+DASHBOARD_REPO=treddy08/workshop-dashboard
 DASHBOARD_VERSION=4.1.1
 DASHBOARD_MODE=
 DASHBOARD_VARIANT=production
