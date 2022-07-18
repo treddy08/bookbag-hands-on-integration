@@ -16,7 +16,7 @@ parameters:
     value: bookbag
   - name: BUILDER_IMAGE
     required: true
-    value: quay.io/openshifthomeroom/workshop-dashboard:5.0.0
+    value: image-registry.openshift-image-registry.svc:5000/bookbag-tr1/workshop-dashboard
   - name: GIT_REPO
     value: https://github.com/redhat-gpte-devopsautomation/bookbag-template.git
 
