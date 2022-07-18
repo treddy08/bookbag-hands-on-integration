@@ -128,7 +128,7 @@ EOF
 ----
 +
 ++++
-<a href="#" onclick="var yaml = '\napiVersion: camel.apache.org/v1\nkind: IntegrationPlatform\nmetadata:\n  name: camel-k\n  labels:\n    app: \"camel-k\"\n  namespace: lab-04-knative\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
+<a href="#" onclick="var yaml = '\napiVersion: camel.apache.org/v1\nkind: IntegrationPlatform\nmetadata:\n  name: camel-k\n  labels:\n    app: camel-k\n  namespace: lab-04-knative\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
 ++++
 
 . We now need to install the Openshift Serverless Operator (Knative) to later install both Knative Serving and Knative Eventing.  To do this we first need to create a new namespace for the operator by running this command:
