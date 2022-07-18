@@ -1,0 +1,456 @@
+:labname: Debezium Database Connectors with AMQ Streams
+
+include::lab-header.adoc[]
+
+== {labname} Lab
+
+:numbered:
+
+== Introduction to Debezium Database Connectors on AMQ Streams
+
+Debezium for Red Hat Integration is a distributed platform that captures database operations, creates data change event records for row-level operations, and streams change event records to Apache Kafka topics. Debezium is built on Apache Kafka and is deployed and integrated with AMQ Streams.
+
+Debezium captures row-level changes to a database table and passes corresponding change events to AMQ Streams. Applications can read these change event streams and access the change events in the order in which they occurred.
+
+With the Y22Q1 release of Red Hat^(R)^ Integration, you can now use AMQ Streams to deploy Debezium connectors by using a new AMQ Streams build mechanism that is based on Maven artifacts.
+
+.Goals
+
+* Deploy a MySQL database on OpenShift
+* Deploy Debezium with AMQ Streams
+* Verifying that the Debezium connector deployed and running
+
+== Deploy a MySQL database on OpenShift
+
+In this section you will deploy a MySQL database server that includes an example inventory database that includes several tables that are pre-populated with data on to the OpenShift platform. Later on, this database will be monitored by the Debezium MySQL connector and capture changes that occur in the sample tables and transmit the change event records to an Apache Kafka topic.
+
+.Procedure
+
+. In a terminal, create a new project called lab-03-debezium:
++
+[source,bash]
+----
+oc new-project lab-03-debezium
+----
+
+. Start a MySQL database by running the following command, which starts a MySQL database server configured with an example `inventory` database:
++
+[source,bash]
+----
+$ cat << EOF | oc create -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: quay.io/debezium/example-mysql:latest
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: debezium
+        - name: MYSQL_USER
+          value: mysqluser
+        - name: MYSQL_PASSWORD
+          value: mysqlpw
+        ports:
+        - containerPort: 3306
+          name: mysql
+EOF
+----
+
+. Verify that the MySQL database is running by invoking the following command, which is followed by the output that shows that the MySQL database is running, and that the pod is ready:
++
+[source,bash]
+----
+$ oc get pods -l app=mysql
+
+NAME                     READY   STATUS    RESTARTS   AGE
+mysql-6bf9bb59c7-shgrb   1/1     Running   1          23s
+----
+
+. Open a new terminal and log into the sample inventory database.
++
+This command opens a MySQL command line client in the pod that is running the MySQL database. The client uses the user name and password that you previously configured:
++
+[source,bash]
+----
+$ oc exec mysql-6bf9bb59c7-shgrb  -it -- mysql -umysqluser -pmysqlpw inventory
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 7
+Server version: 5.7.29-log MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+----
+[NOTE]
+The pod name used for this command will be different in your environment.  The pod name can be found in output of `oc get pods -l app=mysql`
+
+. List the tables in the inventory database:
++
+[source,bash]
+----
+mysql> show tables;
+
++---------------------+
+| Tables_in_inventory |
++---------------------+
+| addresses           |
+| customers           |
+| geom                |
+| orders              |
+| products            |
+| products_on_hand    |
++---------------------+
+6 rows in set (0.00 sec)
+----
+
+. Explore the database and view the data that it contains, for example, view the customers table:
+
+[source,bash]
+----
+mysql> select * from customers;
+
++------+------------+-----------+-----------------------+
+| id   | first_name | last_name | email                 |
++------+------------+-----------+-----------------------+
+| 1001 | Sally      | Thomas    | sally.thomas@acme.com |
+| 1002 | George     | Bailey    | gbailey@foobar.com    |
+| 1003 | Edward     | Walker    | ed@walker.com         |
+| 1004 | Anne       | Kretchmar | annek@noanswer.org    |
++------+------------+-----------+-----------------------+
+4 rows in set (0.00 sec)
+----
+
+== Deploy Debezium Database Connectors with AMQ Streams
+
+With earlier versions of AMQ Streams, to deploy Debezium connectors on OpenShift, you were required to first build a Kafka Connect image for the connector. The current preferred method for deploying connectors on OpenShift is to use a build configuration in AMQ Streams to automatically build a Kafka Connect container image that includes the Debezium connector plug-ins that you want to use.
+
+During the build process, the AMQ Streams Operator transforms input parameters in a KafkaConnect custom resource, including Debezium connector definitions, into a Kafka Connect container image. The build downloads the necessary artifacts from the Red Hat Maven repository or another configured HTTP server. The newly created container is pushed to the container registry that is specified in .spec.build.output, and is used to deploy a Kafka Connect pod. After AMQ Streams builds the Kafka Connect image, you create KafkaConnector custom resources to start the connectors that included in the build.
+
+.Procedure
+
+. Switch to your lab project using `oc project lab-03-debezium`
+. Install the AMQ Streams operator by running the below command:
++
+[source,bash]
+----
+$ cat << EOF | oc create -f -
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: lab-03-debezium-og
+  namespace: lab-03-debezium
+spec:
+  targetNamespaces:
+  - lab-03-debezium
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: amq-streams
+  namespace: lab-03-debezium
+spec:
+  channel: stable
+  name: amq-streams
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+EOF
+----
++
+[NOTE]
+
+. To check the status of the installation, run the command `oc get csv`.  When AMQ Streams is installed, you should find an entry related to `amqstreams` in phase *Succeeded*:
++
+[source,bash]
+----
+$ oc get csv
+NAME                                     DISPLAY                             VERSION   REPLACES                            PHASE
+amqstreams.v2.1.0-4                      Red Hat Integration - AMQ Streams   2.1.0-4   amqstreams.v2.1.0-3                 Succeeded
+----
+[NOTE]
+Since we are using marketplace, the CSV version may be different than what is shown here
+
+. A Kafka cluster consists of one or more servers (Kafka brokers) running Kafka.  A properly configured Kafka cluster is able to handle massive throughput and ideal for processing vast amounts of data collected by the Debezium databas connectors .  In this lab we will require only a single node Kafka cluster.  To deploy the cluster, run the following command:
++
+[source,bash]
+----
+$ cat << EOF | oc create -n lab-03-debezium -f -
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: debezium-cluster
+spec:
+  kafka:
+    replicas: 1
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication:
+          type: tls
+      - name: external
+        port: 9094
+        type: nodeport
+        tls: false
+    storage:
+      type: jbod
+      volumes:
+      - id: 0
+        type: persistent-claim
+        size: 100Gi
+        deleteClaim: false
+    config:
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+  zookeeper:
+    replicas: 1
+    storage:
+      type: persistent-claim
+      size: 100Gi
+      deleteClaim: false
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+EOF
+----
+
+. Wait until it’s ready:
++
+[source,bash]
+----
+$ oc wait kafka/debezium-cluster --for=condition=Ready --timeout=300s
+----
+
+. To deploy a Debezium connector, you need to deploy a Kafka Connect cluster with the required connector plug-in(s), before instantiating the actual connector itself. As the first step, a container image for Kafka Connect with the plug-in has to be created.
++
+Again, we will use the AMQ Streams operator for creating the Kafka Connect cluster. Based on the configuration specified in the custom resource, the Operator prepares a Kafka Connect image to deploy.  After the build completes, the Operator pushes the image to the specified registry or ImageStream, and starts the Kafka Connect cluster. The connector artifacts that you listed in the configuration are available in the cluster.
++
+Run the below command to create your KafkaConnect object:
++
+[source,bash]
+----
+$ cat << EOF | oc create -f -
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: debezium-streams-connect
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: debezium-connect-cluster
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: "3.1.0"
+  replicas: 1
+  build:
+    output:
+      type: imagestream
+      image: debezium-streams-connect:latest
+    plugins:
+      - name: debezium-mysql-connector
+        artifacts:
+          - type: tgz
+            url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/1.9.2.Final/debezium-connector-mysql-1.9.2.Final-plugin.tar.gz
+  bootstrapServers: debezium-cluster-kafka-bootstrap:9092
+  config:
+    group.id: connect-cluster
+    offset.storage.topic: connect-cluster-offsets
+    config.storage.topic: connect-cluster-configs
+    status.storage.topic: connect-cluster-status
+    # -1 means it will use the default replication factor configured in the broker
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1
+EOF
+----
+
+. Wait until it’s ready:
++
+[source,bash]
+----
+$ oc wait kafkaconnect/debezium-connect-cluster --for=condition=Ready --timeout=300s
+----
+
+. To create a Debezium connector, you just need to create a KafkaConnector with the appropriate configuration to connect to your database.  Run the below command to create your KafkaConnector object:
++
+[source,bash]
+----
+$ cat << EOF | oc create -f -
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-connector-mysql
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  config:
+    tasks.max: 1
+    database.hostname: mysql
+    database.port: 3306
+    database.user: debezium
+    database.password: dbz
+    database.server.id: 184054
+    database.server.name: mysql
+    database.include.list: inventory
+    database.history.kafka.bootstrap.servers: debezium-cluster-kafka-bootstrap:9092
+    database.history.kafka.topic: schema-changes.inventory
+EOF
+----
++
+The connector is registered to the Kafka Connect cluster and starts to run against the database that is specified by config in the KafkaConnector CR. After the connector pod is ready, Debezium is running.
+
+. Verify that the connector created Kafka topics by running `oc get kafkatopics`.  You should see a list of topics created for each table that Debezium is monitoring:
++
+[source,bash]
+----
+$ oc get kafkatopics
+NAME                                                                                               CLUSTER            PARTITIONS   REPLICATION FACTOR   READY
+connect-cluster-configs                                                                            debezium-cluster   1
+connect-cluster-offsets                                                                            debezium-cluster   25
+connect-cluster-status                                                                             debezium-cluster   5
+consumer-offsets---84e7a678d08f4bd226872e5cdd4eb527fadc1c6a                                        debezium-cluster   50
+mysql                                                                                              debezium-cluster   1
+mysql.inventory.addresses                                                                          debezium-cluster   1
+mysql.inventory.customers                                                                          debezium-cluster   1
+mysql.inventory.geom                                                                               debezium-cluster   1
+mysql.inventory.orders                                                                             debezium-cluster   1
+mysql.inventory.products                                                                           debezium-cluster   1
+mysql.inventory.products-on-hand---992ac432537e38a711e6ebf3693f918bcc9ba7a3                        debezium-cluster   1
+schema-changes.inventory                                                                           debezium-cluster   1
+strimzi-store-topic---effb8e3e057afce1ecf67c3f5d8e4e3ff177fc55                                     debezium-cluster   1
+strimzi-topic-operator-kstreams-topic-store-changelog---b75e702040b99be8a9263134de3507fc0cc4017b   debezium-cluster   1
+----
+
+== Verify the Deployment
+
+To verify the everything works fine, you can, for example, start watching mysql.inventory.customers Kafka topic.  In this section you will monitor a Kafka Topic for any changes made in the inventory database:
+
+.Procedure
+. In a terminal window, run the below command:
++
+[source,bash]
+----
+$ oc run -n lab-03-debezium -it --rm --image=quay.io/debezium/tooling:1.2  --restart=Never watcher -- kcat -b debezium-cluster-kafka-bootstrap:9092 -C -o beginning -t mysql.inventory.customers
+----
++
+The above command actively monitors the mysql.inventory.customers topic for any events that are created if a change is made in the `customers` table in the `inventory` database.
+
+. In another terminal window, run the below command:
++
+[source,bash]
+----
+$ oc run -n lab-03-debezium -it --rm --image=mysql:8.0 --restart=Never --env MYSQL_ROOT_PASSWORD=debezium mysqlterm -- mysql -hmysql -P3306 -uroot -pdebezium inventory
+----
++
+The above command initiates a mysql session with the mysql database created earlier.
+
+. Make a change to the customers table by running the below SQL command:
++
+[source,sql]
+----
+sql> update customers set first_name="Sally Marie" where id=1001;
+----
+
+. Switch back to the terminal window monitoring your topic.  You should be able to observie events on the Kafka topic:
++
+[source,json]
+----
+{
+...
+  "payload": {
+    "before": {
+      "id": 1001,
+      "first_name": "Sally",
+      "last_name": "Thomas",
+      "email": "sally.thomas@acme.com"
+    },
+    "after": {
+      "id": 1001,
+      "first_name": "Sally Marie",
+      "last_name": "Thomas",
+      "email": "sally.thomas@acme.com"
+    },
+    "source": {
+      "version": "{debezium-version}",
+      "connector": "mysql",
+      "name": "mysql",
+      "ts_ms": 1646300467000,
+      "snapshot": "false",
+      "db": "inventory",
+      "sequence": null,
+      "table": "customers",
+      "server_id": 223344,
+      "gtid": null,
+      "file": "mysql-bin.000003",
+      "pos": 401,
+      "row": 0,
+      "thread": null,
+      "query": null
+    },
+    "op": "u",
+    "ts_ms": 1646300467746,
+    "transaction": null
+  }
+}
+----
+
+== Summary
+
+
+Congratulations, you have finished the lab. Here is a recap:
+
+* You deployed a MySQL database on Openshift
+* You deployed a Debezium Database Connector with AMQ Streams on Openshift
+** Installed the AMQ Streams operator on Openshift
+** Created a Kafka Cluster with the AMQ Streams operator
+** Created a KafkaConnect build specification with the AMQ Streams operator
+** Created a KafkaConnector resource to define an instance of each connector that you want to deploy.
+** Confirmed that the Kafka Topics monitoring the database were created
+* Finally you verified the deployment by monitoring a topic, making a change in the database and receiving an event to that topic.
+
+You are ready to go to the next lab, or you can spend some time exploring these aspects of *Debezium Database Connectors* on your own.

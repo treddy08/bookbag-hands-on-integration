@@ -3,8 +3,6 @@ name: Hands on with Integration
 modules:
   activate:
     - overview
+    - camel-extensions-for-quarkus
+    - debezium-database-connector-amq
     - new-features-in-camel-k
-    - prepare-environment
-    - exercises
-    - cleanup
-    - solving-resetting

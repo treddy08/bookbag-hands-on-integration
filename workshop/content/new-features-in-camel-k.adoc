@@ -4,6 +4,8 @@
 :markup-in-source: verbatim,attributes,quotes
 :show_solution: true
 
+include::lab-header.adoc[]
+
 == {labname} Lab
 
 :numbered:

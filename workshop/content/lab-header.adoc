@@ -1,0 +1,26 @@
+// Course Properties
+:course_name: Hands-On with Red Hat Integration Y22Q1
+
+// OpenTLC Portal
+:opentlc_portal: link:https://labs.opentlc.com/[OPENTLC lab portal^]
+:opentlc_account_management: link:https://www.opentlc.com/account/[OPENTLC Account Management page^]
+
+// Catalog Items
+:opentlc_catalog_name: OPENTLC Middleware Solutions Lab
+:opentlc_catalog_item_name1: Hands-On with Integration
+:opentlc_student_catalog_item_name1: Hands-On with Integration
+
+// OpenShift Cluster Properties
+:ocp_console: https://console-openshift-console.apps.<some-custom-identifier>.opentlc.com
+:ocp_api: https://api.<some-custom-identifier>.opentlc.com:6443
+
+// Documentation
+:ocp_docs: link:https://docs.openshift.com/container-platform/4.9/welcome/index.html[OpenShift Container Platform Documentation^]
+
+// Lab Document Setup
+:scrollbar:
+:data-uri:
+:imagesdir: images
+:toc2:
+:linkattrs:
+:noaudio:
