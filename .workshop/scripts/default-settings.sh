@@ -1,5 +1,5 @@
 TERMINAL_IMAGE=quay.io/openshifthomeroom/workshop-terminal:3.0.0
-DASHBOARD_IMAGE=quay.io/openshifthomeroom/workshop-dashboard:5.0.0
+DASHBOARD_IMAGE=image-registry.openshift-image-registry.svc:5000/bookbag-tr1/workshop-dashboard
 SPAWNER_IMAGE=quay.io/openshifthomeroom/workshop-spawner:6.2.1
 CONSOLE_IMAGE=quay.io/openshift/origin-console:4.1
 
