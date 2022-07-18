@@ -10,13 +10,7 @@
 
 == Introduction to New Features in Camel K
 
-Debezium for Red Hat Integration is a distributed platform that captures database operations, creates data change event records for row-level operations, and streams change event records to Apache Kafka topics. Debezium is built on Apache Kafka and is deployed and integrated with AMQ Streams.
-
-Debezium captures row-level changes to a database table and passes corresponding change events to AMQ Streams. Applications can read these change event streams and access the change events in the order in which they occurred.
-
-With the Y22Q1 release of Red Hat^(R)^ Integration, you can now use AMQ Streams to deploy Debezium connectors by using a new AMQ Streams build mechanism that is based on Maven artifacts.
-
-The Camel K provides cloud-native integration with the following main features:
+Camel K provides cloud-native integration with the following main features:
 
 * Knative Serving for autoscaling and scale-to-zero
 * Knative Eventing for event-driven architectures
@@ -102,7 +96,7 @@ EOF
 <a href="#" onclick="var yaml = '\napiVersion: operators.coreos.com/v1\nkind: OperatorGroup\nmetadata:\n  name: lab-04-knative-og\n  namespace: lab-04-knative\nspec:\n  targetNamespaces:\n  - lab-04-knative\n---\napiVersion: operators.coreos.com/v1alpha1\nkind: Subscription\nmetadata:\n  name: red-hat-camel-k\n  namespace: lab-04-knative\nspec:\n  channel: stable\n  name: red-hat-camel-k\n  source: redhat-operators\n  sourceNamespace: openshift-marketplace\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
 ++++
 
-. Confirm if the operator installed successfull by running `oc get csv` and find an entry related to `red-hat-camel-k-operator` in phase *Succeeded*:
+. Confirm if the operator installed successfull by running `  ` and find an entry related to `red-hat-camel-k-operator` in phase *Succeeded*:
 +
 [source,bash]
 ----

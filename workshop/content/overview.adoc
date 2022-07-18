@@ -1,31 +1,168 @@
-:USER_GUID: %GUID%
-:USERNAME: %USERNAME%
-:markup-in-source: verbatim,attributes,quotes
-:show_solution: true
+:noaudio:
 
+ifdef::revealjs_slideshow[]
 
-== Overview
+[#cover,data-background-image="image/1156524-bg_redhat.png" data-background-color="#cc0000"]
 
-In this lab, you will deploy Red Hat OpenShift Container Platform 4 using the User Provided Infrastructure method onto Red Hat OpenStack. 
+== &nbsp;
 
-// Briefly explain the lab content here
+[#cover-h1]
+Hands-on with Red Hat Integration Y22Q1
 
-By completing this lab you will achieve the following goals: 
+[#cover-h2]
+Introduction
 
-* Learn about the process of OpenShift 4 disconnected installation
-* ....
-* ....
+[#cover-logo]
+image::{revealjs_cover_image}[]
 
-== User Information
+endif::[]
 
-Here is your user information:
+== Module Topics
+:noaudio:
 
-[source,bash,options="nowrap",subs="{markup-in-source}"]
-----
-Here is some important information about your environment:
+* Course Overview
+* Assumptions
+* Class Environment Topology
+* Summary of Labs
 
-Your GUID is: *{USER_GUID}*
+ifdef::showscript[]
 
-Your username is: *{USERNAME}*
+Transcript:
 
-----
+endif::showscript[]
+
+== Course Overview
+:noaudio:
+
+* Red Hat Integration is a comprehensive set of integration and event processing technologies for creating, extending, and deploying container-based integration services across hybrid and multicloud environments.
+* Red Hat Integration provides an agile, distributed, and API-centric solution that organizations can use to connect and share data between applications and systems required in a digital world.
+
+* Red Hat Integration includes the following capabilities:
+
+** Real-time messaging
+** Cross-datacenter message streaming
+** API connectivity
+** Application connectors
+** Enterprise integration patterns
+** API management
+** Data transformation
+** Service composition and orchestration
+
+== Course Overview
+:noaudio:
+
+* The purpose of this course is to learn and experiment with the some of the latest features for the Red Hat^(R)^ Integration Y22Q1 release.
+** You do not need to stay within the course materials.
+** Feel free to experiment.
+** For credit, complete the assessment in the final module.
+* The lab environment consists of the following components:
+** TBC
+** TBC
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
+== Course Overview
+:noaudio:
+
+* This course consists of hands-on labs with learning activities, references, and resources.
+* Topics cover the following Red Hat Integration Y22Q1 features:
+** Camel Extensions for Quarkus
+** Dbezium Database Connectors with AMQ Streams
+** New features in Camel K
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
+== Assumptions
+:noaudio:
+
+* You are comfortable using the OpenShift Container Platform web console.
+* You are comfortable working with working with Red Hat Integration products such as Camel and Camel K.
+* You can read, modify, and run Camel and Camel K code.
+* You are familiar with deploying applications on OpenShift Container Platform.
+* You have:
+** A workstation available for training
+** An up-to-date web browser
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
+== Class Environment Topology
+:noaudio:
+
+* The environment includes one bastion host for command-line access to the cluster.
+* It also includes one single-node OpenShift Container Platform cluster where OpenShift Container Platform and applications are deployed.
+* Finally, it includes one dedicated node for the worker in RHEL 8.
+
+image::./images/lab-env-hoos49.png[role="thumb center"width=100%]
+
+ifdef::showscript[]
+
+Transcript:
+
+endif::showscript[]
+
+:linkattrs:
+
+== Summary of Labs
+
+:noaudio:
+
+.Course Setup Lab
+
+* In this lab, you perform the following:
+
+** Order the proper services from link:https://labs.opentlc.com[Red Hat CloudForms^(R)^ Management Engine^].
+** Learn the environment policies and limitations.
+
+== Summary of Labs
+
+:noaudio:
+
+.RHEL 8 Workers Lab
+
+* This lab explores the following concepts:
+** Support for RHEL 8 server worker and infra nodes is a common request Red Hat gets from customers.
+** Many large enterprise clusters deploy on-premise clusters to disconnected environments.
+** They often have their own operational processes for provisioning and securing the operating system.
+** They want to continue leveraging their own well-established process for maintaining and managing their environment, including their OpenShift worker nodes.
+
+* In this lab, you learn how to use `openshift-ansible` playbooks to bring RHEL 8 instances into the cluster.
+
+== Summary of Labs
+
+:noaudio:
+
+.Audit Logging Groups Lab
+
+* This lab explores the following concepts:
+** Audit logging groups are improvements in how audit data is provided to security analysts and the third-party tools security analysts use to do their jobs.
+** New tools are expanding customers' capacities to respond intelligently to potential and actual threats.
+** To address customers' security and regulatory requirements, the 4.9 release of OpenShift Container Platform includes support for improved audit log policy profiles via grouping.
+
+* In this lab, you learn how to configure audit logging groupings to surface security concerns at the OpenShift and Kubernetes API servers.
+
+:linkattrs:
+
+== Summary of Labs
+
+:noaudio:
+
+.Pipeline Triggers Lab
+
+* This lab explores the following concepts:
+** OpenShift Pipelines is a cloud-native, continuous integration and delivery (CI/CD) solution for building pipelines using link:https://tekton.dev[Tekton^].
+** Tekton is a flexible, Kubernetes-native, open-source CI/CD framework that enables automating deployments across multiple platforms by abstracting away the underlying details.
+
+* In this lab, you learn about Tekton concepts, deploy a sample application, and install tasks.
+** You also create and trigger a pipeline and understand and install triggers, TriggerBindings, TriggerTemplates, and EventListeners.
