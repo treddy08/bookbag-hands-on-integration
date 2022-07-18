@@ -98,7 +98,11 @@ EOF
 <a href="#" onclick="var yaml = '\napiVersion: operators.coreos.com/v1\nkind: OperatorGroup\nmetadata:\n  name: lab-04-knative-og\n  namespace: lab-04-knative\nspec:\n  targetNamespaces:\n  - lab-04-knative\n---\napiVersion: operators.coreos.com/v1alpha1\nkind: Subscription\nmetadata:\n  name: red-hat-camel-k\n  namespace: lab-04-knative\nspec:\n  channel: stable\n  name: red-hat-camel-k\n  source: redhat-operators\n  sourceNamespace: openshift-marketplace\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
 ++++
 
-. Confirm if the operator installed successfull by running `  ` and find an entry related to `red-hat-camel-k-operator` in phase *Succeeded*:
+. Confirm if the operator installed successfull by running `oc get csv` and find an entry related to `red-hat-camel-k-operator` in phase *Succeeded*:
++
+++++
+<a href="#" onclick="parent.send_to_terminal('oc get csv', 1); return false;">Execute</a>
+++++
 +
 [source,bash]
 ----
@@ -122,6 +126,10 @@ metadata:
   namespace: lab-04-knative
 EOF
 ----
++
+++++
+<a href="#" onclick="var yaml = '\napiVersion: camel.apache.org/v1\nkind: IntegrationPlatform\nmetadata:\n  name: camel-k\n  labels:\n    app: \"camel-k\"\n  namespace: lab-04-knative\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
+++++
 
 . We now need to install the Openshift Serverless Operator (Knative) to later install both Knative Serving and Knative Eventing.  To do this we first need to create a new namespace for the operator by running this command:
 +
