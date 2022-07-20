@@ -122,7 +122,7 @@ kind: IntegrationPlatform
 metadata:
   name: camel-k
   labels:
-    app: "camel-k"
+    app: camel-k
   namespace: lab-04-knative
 EOF
 ----
@@ -137,6 +137,10 @@ EOF
 ----
 $ oc create namespace openshift-serverless
 ----
++
+++++
+<a href="#" onclick="parent.send_to_terminal('oc create namespace openshift-serverless', 1); return false;">Execute</a>
+++++
 
 . Next we install the operator:
 +
@@ -161,8 +165,16 @@ spec:
   sourceNamespace: openshift-marketplace
 EOF
 ----
++
+++++
+<a href="#" onclick="var yaml = '\napiVersion: operators.coreos.com/v1\nkind: OperatorGroup\nmetadata:\n  name: openshift-serverless-og\n  namespace: openshift-serverless\n---\napiVersion: operators.coreos.com/v1alpha1\nkind: Subscription\nmetadata:\n  name: serverless-operator\n  namespace: openshift-serverless\nspec:\n  channel: stable\n  name: serverless-operator\n  source: redhat-operators\n  sourceNamespace: openshift-marketplace\n'; parent.send_to_terminal('cat << EOF | oc create -f -' + yaml + 'EOF', 1); return false;">Execute</a>
+++++
 
 . Confirm if the operator installed successfull by running `oc get csv` and find an entry related to `serverless-operator` in phase *Succeeded*:
++
+++++
+<a href="#" onclick="parent.send_to_terminal('oc get csv', 1); return false;">Execute</a>
+++++
 +
 [source,bash]
 ----

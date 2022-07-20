@@ -29,6 +29,7 @@ parameters:
     value: '*'
   - name: AUTH_PASSWORD
     value: ''
+  - name: CONSOLE_URL
 
 objects:
   - apiVersion: apps.openshift.io/v1
@@ -81,6 +82,10 @@ objects:
                 - name: KUBECTL_VERSION
                 - name: WORKSHOP_VARS
                   value: ${WORKSHOP_VARS}
+                - name: CONSOLE_URL
+                  value: ${CONSOLE_URL}
+                - name: NODE_TLS_REJECT_UNAUTHORIZED
+                  value: '0'
               image: ${IMAGE}
               imagePullPolicy: IfNotPresent
               ports:
